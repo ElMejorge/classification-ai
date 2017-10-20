@@ -39,12 +39,64 @@ def getMean(dataset):
     return float(sum(dataset)/len(dataset))
 
 def getStdDev(dataset):
-    return None
+    average = getMean(dataset)
+    variance = sum([pow(x-average,2) for x in dataset])/float(len(dataset)-1)
+    return math.sqrt(variance)
+
+def getSummary(dataset):
+    attributes = zip(*dataset)
+    summaries = []
+    for attribute in attributes:
+        summaries.append([getMean(attribute),getStdDev(attribute)])
+    del summaries[-1]   # Delete class variable
+    return summaries
+
+def summarizeAttributes(classes):
+    summaries = {}
+    for classValue, elements in classes.items():
+        summaries[classValue] = getSummary(elements)
+    return summaries
+
+# Formula to calculate if attribute value from element is more likely to be from a class variable
+def calculateProbability(x, mean, stdev):
+    exponent = math.exp(-(math.pow(x-mean,2)/(2*math.pow(stdev,2))))
+    return (1 / (math.sqrt(2*math.pi) * stdev)) * exponent
+
+def calculateClassProbabilities(summaries, inputVector):
+    probabilities = {}
+    for classValue, classSummaries in summaries.items():
+        probabilities[classValue] = 1
+        for i in range(len(classSummaries)):
+            mean, stdev = classSummaries[i]
+            x = inputVector[i]
+            probabilities[classValue] *= calculateProbability(x, mean, stdev)
+    return probabilities
+
+def predict(summaries, inputVector):
+    probabilities = calculateClassProbabilities(summaries, inputVector)
+    bestLabel, bestProb = None, -1
+    for classValue, probability in probabilities.items():
+        if bestLabel is None or probability > bestProb:
+            bestProb = probability
+            bestLabel = classValue
+    return bestLabel
 
 # 1-. Handle data
 dataset = loadCsv()
 trainDS, testDS = splitDataset(dataset)
 # 2-. Summarize data
 classes = separateByClass(dataset)
-
+summaries = summarizeAttributes(classes)
+# 3-. Make predictions
+correct = 0
+failure = 0
+for testElement in testDS:
+    result = predict(summaries, testElement)
+    if(result == testElement[-1]):
+        correct += 1
+    else:
+        failure += 1
+    # print('Prediction: {0}\t Solution {1}'.format(result, testElement[-1]))
+print('Correct predictions: {0}\t Failed: {1}'.format(correct, failure))
+print('Accuracy: {0}'.format(correct/len(testDS)))
 
