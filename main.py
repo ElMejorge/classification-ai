@@ -95,5 +95,5 @@ for testElement in testDS:
         failure += 1
     # print('Prediction: {0}\t Solution {1}'.format(result, testElement[-1]))
 print('Correct predictions: {0}\t Failed: {1}'.format(correct, failure))
-print('Accuracy: {0}'.format(correct/len(testDS)))
+print('Accuracy: {0}'.format(float(correct/len(testDS))))
 
