@@ -1,16 +1,13 @@
-import pandas as pd
-import scipy
 import random
 import csv
 import math
-from pandas import DataFrame, Series
 
 #  Obtain dataset as array
 def loadCsv():
     filename = "diabetes.data.csv"
     lines = csv.reader(open(filename,"rt"))
     dataset = list(lines)
-    for i in range(len(dataset)):
+    for i in range(0,len(dataset)):
         dataset[i] = [float(x) for x in dataset[i]]
     return dataset
 
